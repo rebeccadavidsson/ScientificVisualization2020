@@ -1,0 +1,174 @@
+body {
+    background-color: #222222;
+    font-family: Arial, Helvetica, sans-serif;
+    color: darkgrey;
+}
+
+.axis path,
+.axis line {
+	fill: none;
+	stroke: darkgrey;
+  opacity: 0.2;
+	/* shape-rendering: crispEdges; */
+}
+
+.axis text {
+	font: 12px;
+  color: darkgrey;
+  fill: darkgrey;
+  font-weight: lighter;
+}
+
+
+.dot:hover {
+    cursor: pointer;
+}
+
+.tooltip {	
+  position: absolute;			
+  text-align: center;			
+  width: auto;		
+  z-index: 10;		
+  height: auto;					
+  padding: 2px;		
+  color: white;
+  padding: 20px;		
+  font: 13px;		
+  background: #505050;	
+  border: 0px;		
+  border-radius: 4px;			
+  pointer-events: none;			
+}
+
+.tooltip::first-letter {
+    text-transform: uppercase;
+}
+
+.legend_text {
+    fill: darkgrey;
+}
+.legend_text:hover {
+  cursor: pointer;
+}
+
+.backgroundText {
+  font-size: 70px;
+  color:darkgrey;
+  position: absolute;
+  left: 700px;
+  top: 200px;
+  opacity: 0.4;
+}
+.backgroundTextsmall {
+  font-size: 16px;
+  color: darkgrey;
+  position: absolute;
+  left: 710px;
+  top: 190px;
+  opacity: 0.5;
+}
+
+.switch {
+  position: absolute;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  left: 1030px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.showyears {
+  margin-left: 70px;
+  position: absolute;
+  top: 7px;
+  width: auto;
+  white-space: nowrap;
+}
+
+
+.weight_nr {
+  position: absolute;
+  z-index: 10;
+}
+
+#play {
+  margin-top: 120px;
+  margin-left: -8px;
+  position: absolute;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  left: 1030px;
+}
+
+#play  span {
+  position: absolute;
+  top: 25px;
+  left: 85px;
+}
+#play:hover {
+  cursor: pointer;
+}
+
+#play > img:hover {
+    transform: scale(1.1);
+  transition: 0.3s;
+}
+
+.cylinderlabel {
+  color: darkgey;
+}
