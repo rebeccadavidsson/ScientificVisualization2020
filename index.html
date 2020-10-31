@@ -14,496 +14,499 @@
 <div id="my_dataviz"></div>
 <div id="slider"></div>
 <div class="backgroundTextsmall"></div>
-<div class="backgroundText" ></div>
+<div class="backgroundText"></div>
 
 <label class="switch" onclick="check()">
-    <input type="checkbox" id="check" checked="true"> 
+    <input type="checkbox" id="check" checked="true">
     <span class="slider round"></span>
     <span class="showyears"> Show all years</span>
 </label>
 <span class="showyears" id="play" onclick="play()"><img src="play.png" width="60" height="60" /> <span>Play
         timeline</span></span>
- <div class="info">
+<div class="info">
     <h3>Cars dataset</h3>
     <span>To view more information, <strong>hover</strong> over the markers. <br>
         <strong>Click</strong> on the origin or number of cylinders to filter the data. <br>
         <strong>Play</strong> the timeline button in order to view the year of the cars. <br>
     </span>
- </div>       
+</div>
 <script>
 
-counter = 1970;
-play = true;
-const width_svg = 1000;
-const height_svg = 600;
+    counter = 1970;
+    play = true;
+    const width_svg = 1000;
+    const height_svg = 600;
 
-// set the dimensions and margins of the graph
-var margin = { top: 20, right: 50, bottom: 30, left: 180 },
-    width = width_svg - margin.left - margin.right,
-    height = height_svg - margin.top - margin.bottom,
-    range = [70, 83],
-    step =1;
+    // set the dimensions and margins of the graph
+    var margin = { top: 20, right: 50, bottom: 30, left: 180 },
+        width = width_svg - margin.left - margin.right,
+        height = height_svg - margin.top - margin.bottom,
+        range = [70, 83],
+        step = 1;
 
-// setup x 
-var xValue = function (d) { return d.horsepower; }, 
-    xScale = d3.scale.linear().range([0, width]), 
-    xMap = function (d) { return xScale(xValue(d)); }, 
-    xAxis = d3.svg.axis()
-        .scale(xScale)
-        .orient("bottom");
+    // setup x 
+    var xValue = function (d) { return d.horsepower; },
+        xScale = d3.scale.linear().range([0, width]),
+        xMap = function (d) { return xScale(xValue(d)); },
+        xAxis = d3.svg.axis()
+            .scale(xScale)
+            .orient("bottom");
 
-// setup y
-var yValue = function (d) { return d["MPG"]; }, 
-    yScale = d3.scale.linear().range([height, 0]), 
-    yMap = function (d) { return yScale(yValue(d)); }, 
-    yAxis = d3.svg.axis().scale(yScale).orient("left");
+    // setup y
+    var yValue = function (d) { return d["MPG"]; },
+        yScale = d3.scale.linear().range([height, 0]),
+        yMap = function (d) { return yScale(yValue(d)); },
+        yAxis = d3.svg.axis().scale(yScale).orient("left");
 
-// setup fill color
-var cValue = function (d) { return d.horsepower; },
-    color = d3.scale.category10();
+    // setup fill color
+    var cValue = function (d) { return d.horsepower; },
+        color = d3.scale.category10();
 
-var colors = d3.scale.quantize()
-    .domain([2000., 2277.77777778, 2555.55555556, 2833.33333333,
-        3111.11111111, 3388.88888889, 3666.66666667, 3944.44444444,
-        4222.22222222, 4500.]) // Domain of weight
-    .range(["#3288BD", "#66C2A5", "#ABDDA4", "#E6F598",
-        "#FFFFBF", "#FEE08B", "#FDAE61", "#F46D43", "#D53E4F", "#9E0142"]);
+    var colors = d3.scale.quantize()
+        .domain([2000., 2277.77777778, 2555.55555556, 2833.33333333,
+            3111.11111111, 3388.88888889, 3666.66666667, 3944.44444444,
+            4222.22222222, 4500.]) // Domain of weight
+        .range(["#3288BD", "#66C2A5", "#ABDDA4", "#E6F598",
+            "#FFFFBF", "#FEE08B", "#FDAE61", "#F46D43", "#D53E4F", "#9E0142"]);
 
-var getDotSize = function (d) { 
-    var size = parseInt(d.cylinders);
-    if (size == 3) { return 20 }
-    else if (size == 4) { return 35}
-    else if (size == 5) { return 60} 
-    else if (size == 6) { return 90}
-    else if (size == 8) { return 135}}
+    var getDotSize = function (d) {
+        var size = parseInt(d.cylinders);
+        if (size == 3) { return 20 }
+        else if (size == 4) { return 35 }
+        else if (size == 5) { return 60 }
+        else if (size == 6) { return 90 }
+        else if (size == 8) { return 135 }
+    }
 
-// add the graph canvas to the body of the webpage
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    // add the graph canvas to the body of the webpage
+    var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-// add the tooltip area to the webpage
-var tooltip = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
+    // add the tooltip area to the webpage
+    var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
 
-var showAllyears = function () {
+    var showAllyears = function () {
 
-    var checkBox = document.getElementById("check");
-    checkBox.checked = true;
+        var checkBox = document.getElementById("check");
+        checkBox.checked = true;
 
-    d3.select(".backgroundText")
-        .transition()
-        .duration(1000)
-        .attr("x", 100)
-        .attr("y", 100)
-        .attr("class", "backgroundText")
-        .text(" ")
+        d3.select(".backgroundText")
+            .transition()
+            .duration(1000)
+            .attr("x", 100)
+            .attr("y", 100)
+            .attr("class", "backgroundText")
+            .text(" ")
 
-    d3.select(".backgroundTextsmall")
-        .transition()
-        .duration(1000)
-        .text(" ")
+        d3.select(".backgroundTextsmall")
+            .transition()
+            .duration(1000)
+            .text(" ")
 
 
-    svg.selectAll(".dot")
-        .transition()
-        .duration(500)
-        .style("opacity", function (d) { return 1 });
-}
+        svg.selectAll(".dot")
+            .transition()
+            .duration(500)
+            .style("opacity", function (d) { return 1 });
+    }
 
-function check() {
-    // Get the checkbox
-    var checkBox = document.getElementById("check");
+    function check() {
+        // Get the checkbox
+        var checkBox = document.getElementById("check");
 
-    // If the checkbox is checked, display the output text
-    if (checkBox.checked == true) {
-        for (var i = 1; i < 10; i++) {
-            window.clearInterval(i);
+        // If the checkbox is checked, display the output text
+        if (checkBox.checked == true) {
+            for (var i = 1; i < 10; i++) {
+                window.clearInterval(i);
+            }
+            showAllyears();
+
+
         }
-        showAllyears();
+    }
 
 
-    } 
-}
+    // load data
+    d3.csv("cars.csv", function (error, data) {
 
+        data.forEach(function (d) {
+            d.MPG = +d.MPG;
+            d.horsepower = +d.horsepower;
+        });
 
-// load data
-d3.csv("cars.csv", function (error, data) {
+        xScale.domain([d3.min(data, xValue) - 1, d3.max(data, xValue) + 1]);
+        yScale.domain([d3.min(data, yValue) - 1, d3.max(data, yValue) + 1]);
 
-    data.forEach(function (d) {
-        d.MPG = +d.MPG;
-        d.horsepower= +d.horsepower;
-    });
+        // x-axis
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis)
+            .append("text")
+            .attr("class", "axis")
+            .attr("x", width)
+            .attr("y", -6)
+            .style("text-anchor", "end")
+            .text("Horsepower");
 
-    xScale.domain([d3.min(data, xValue) - 1, d3.max(data, xValue) + 1]);
-    yScale.domain([d3.min(data, yValue) - 1, d3.max(data, yValue) + 1]);
+        // y-axis
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+            .append("text")
+            .attr("class", "axis")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text("MPG");
 
-    // x-axis
-    svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis)
-        .append("text")
-        .attr("class", "axis")
-        .attr("x", width)
-        .attr("y", -6)
-        .style("text-anchor", "end")
-        .text("Horsepower");
+        d3.select(".backgroundText")
+            .append("text")
+            .attr("x", 100)
+            .attr("y", 100)
+            .attr("class", "backgroundText")
+            .text('1970')
+        d3.select(".backgroundTextsmall")
+            .append("text")
+            .attr("class", "backgroundTextsmall")
+            .text("Year")
 
-    // y-axis
-    svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis)
-        .append("text")
-        .attr("class", "axis")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .text("MPG");
+        var symbol = d3_shape.symbol()
+            .type('triangle')
+            .size(getDotSize * getDotSize);
 
-    d3.select(".backgroundText")
-        .append("text")
-        .attr("x", 100)
-        .attr("y", 100)
-        .attr("class", "backgroundText")
-        .text('1970')
-    d3.select(".backgroundTextsmall")
-        .append("text")
-        .attr("class", "backgroundTextsmall")
-        .text("Year")
+        var labels = d3.set(data.map(function (d) {
+            return d.origin;
+        })).values();
 
-    var symbol = d3_shape.symbol()
-        .type('triangle')
-        .size(getDotSize * getDotSize);
+        var shapeScale = d3.scale.ordinal()
+            .domain(labels)
+            .range([d3_shape.symbolCircle, d3_shape.symbolCross,
+            d3_shape.symbolSquare]);
 
-     var labels = d3.set(data.map(function (d) {
-        return d.origin;
-    })).values();
-
-    var shapeScale = d3.scale.ordinal()
-        .domain(labels)
-        .range([d3_shape.symbolCircle, d3_shape.symbolCross,
-        d3_shape.symbolSquare]);
-
-    var mapSymbol = function(d) {
-             if (d.origin == "US") {
+        var mapSymbol = function (d) {
+            if (d.origin == "US") {
                 return 0
             } else if (d.origin == "Japan") {
                 return 1
             } else if (d.origin == "Europe") {
                 return 3
             }
-    } 
+        }
 
 
-    // draw dots
-    dots = svg.selectAll(".dot")
-        .data(data)
-        .enter().append("path")
-        .attr("class", "dot")
-        .attr('transform', function (d) { return "translate(" + xMap(d) + "," + yMap(d) + ")"; })
-        .style("fill", function (d, i) { return colors(d.weigth); })
-        .style("opacity", function(d) {
+        // draw dots
+        dots = svg.selectAll(".dot")
+            .data(data)
+            .enter().append("path")
+            .attr("class", "dot")
+            .attr('transform', function (d) { return "translate(" + xMap(d) + "," + yMap(d) + ")"; })
+            .style("fill", function (d, i) { return colors(d.weigth); })
+            .style("opacity", function (d) {
 
-            if (d.cylinders != '4') {
-                return 1;
-            }
-            else {
-                return 1;
-            }
-        })
-        .attr("d", function (d, i, j) { 
-            return d3.svg.symbol().size(getDotSize(d)).type(d3.svg.symbolTypes[mapSymbol(d)])(); })
-        .on("mouseover", function (d) {
-            tooltip.transition()
-                .duration(200)
-                .style("opacity", .9);
-            tooltip.html(d.model + "<br/> Horsepower: " + xValue(d)
-                + ", MPG: " + yValue(d) + "")
-                .style("left", (d3.event.pageX + 20) + "px")
-                .style("top", (d3.event.pageY - 18) + "px");
-        })
-        .on("mouseout", function (d) {
-            tooltip.transition()
+                if (d.cylinders != '4') {
+                    return 1;
+                }
+                else {
+                    return 1;
+                }
+            })
+            .attr("d", function (d, i, j) {
+                return d3.svg.symbol().size(getDotSize(d)).type(d3.svg.symbolTypes[mapSymbol(d)])();
+            })
+            .on("mouseover", function (d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html(d.model + "<br/> Horsepower: " + xValue(d)
+                    + ", MPG: " + yValue(d) + "")
+                    .style("left", (d3.event.pageX + 20) + "px")
+                    .style("top", (d3.event.pageY - 18) + "px");
+            })
+            .on("mouseout", function (d) {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+
+        // draw legend
+        var legend = svg.selectAll(".legend")
+            .data([2000., 2312.5, 2625., 2937.5, 3250., 3562.5, 3875., 4187.5,
+                4500.])
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function (d, i) {
+                return "translate(30," + i * 17 + ")";
+            });
+
+        // // draw legend colored rectangles
+        legend.append("rect")
+            .attr("x", -130)
+            .attr("width", 28)
+            .attr("height", 40)
+            .style("opacity", 0.7)
+            .style("fill", colors);
+
+        // // draw legend text
+        legend.append("text")
+            .attr("class", "weight_nr")
+            .attr("x", -97)
+            .attr("y", function (d, i) {
+                if (i == 0) {
+                    return - 10
+                }
+                else {
+                    return 55
+                }
+            })
+            .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .attr("class", "legend_text")
+            .text(function (d, i) {
+                if (i == 0 || i == 8) {
+                    return d;
+                }
+            })
+
+
+        svg.append('path')
+            .style("fill", "darkgrey")
+            .attr('transform', function (d) { return "translate(-87, 270)"; })
+            .attr("d", d3.svg.symbol().size(150).type(d3.svg.symbolTypes[0])())
+        svg.append("text")
+            .attr("x", -115)
+            .attr("y", 275)
+            .style("text-anchor", "end")
+            .style("cursor", "pointer")
+            .attr("class", "legend_text")
+            .text("US")
+            .on("click", function (d) {
+                for (var i = 1; i < 10; i++) { window.clearInterval(i); }
+                showAllyears();
+                updateOrigin("US");
+            });
+
+        svg.append('path')
+            .style("fill", "darkgrey")
+            .attr('transform', function (d) { return "translate(-87, 320)"; })
+            .attr("d", d3.svg.symbol().size(150).type(d3.svg.symbolTypes[1])())
+        svg.append("text")
+            .attr("x", -115)
+            .attr("y", 325)
+            .style("text-anchor", "end")
+            .style("cursor", "pointer")
+            .attr("class", "legend_text")
+            .text("Japan")
+            .on("click", function (d) {
+                for (var i = 1; i < 10; i++) { window.clearInterval(i); }
+                showAllyears();
+                updateOrigin("Japan");
+            });
+
+        svg.append('path')
+            .style("fill", "darkgrey")
+            .attr('transform', function (d) { return "translate(-87, 370)"; })
+            .attr("d", d3.svg.symbol().size(150).type(d3.svg.symbolTypes[3])())
+        svg.append("text")
+            .attr("x", -115)
+            .attr("y", 375)
+            .style("text-anchor", "end")
+            .style("cursor", "pointer")
+            .attr("class", "legend_text")
+            .text("Europe")
+            .on("click", function (d) {
+                for (var i = 1; i < 10; i++) { window.clearInterval(i); }
+                showAllyears();
+                updateOrigin("Europe");
+            });
+
+
+
+        symbol_sizes = [20, 49, 78, 107, 136];
+        syombol_cylinders = [3, 4, 5, 6, 8]
+        symbol_text = [""]
+        svg.selectAll(".symbols").data(symbol_sizes).enter()
+            .append('path')
+            .style("fill", "darkgrey")
+            .style("cursor", "pointer")
+            .attr('transform', function (d, i) { return "translate(-87," + (420 + d / 1.2) + ")"; })
+            .attr("d", function (d) {
+                return d3.svg.symbol().size(d).type(d3.svg.symbolTypes[0])()
+            })
+            .on("click", function (d) {
+                for (var i = 1; i < 10; i++) { window.clearInterval(i); }
+                showAllyears();
+                updateSymbols(d);
+            });
+
+        svg.selectAll(".symbols").data(syombol_cylinders).enter()
+            .append('text')
+            .attr("transform", function (d, i) {
+                return "translate(-120," + (25 * i + 442) + ")"
+            })
+            .on("click", function (d) {
+                for (var i = 1; i < 10; i++) { window.clearInterval(i); }
+                showAllyears();
+                updateSymbols(d);
+            })
+            .attr("class", "legend_text")
+            .text(function (d) {
+                return d
+            })
+
+
+        svg.append("text")
+            .attr("transform", "translate(-55, 515) rotate(-90)")
+            .attr("class", "legend_text")
+            .text("Cylinders");
+        svg.append("text")
+            .attr("transform", "translate(-55, 335) rotate(-90)")
+            .attr("class", "legend_text")
+            .text("Origin");
+        svg.append("text")
+            .attr("transform", "translate(-55, 115) rotate(-90)")
+            .attr("class", "legend_text")
+            .text("Weight");
+
+
+        var getVal = function (val) { return Math.ceil(val) }
+
+        var updateSymbols = function (symbol) {
+
+            var cylinders = null;
+            if (symbol == 20 || symbol == 3) { cylinders = 3 }
+            else if (symbol == 49 || symbol == 4) { cylinders = 4 }
+            else if (symbol == 78 || symbol == 5) { cylinders = 5 }
+            else if (symbol == 107 || symbol == 6) { cylinders = 6 }
+            else if (symbol == 136 || symbol == 8) { cylinders = 8 }
+            console.log(cylinders);
+            d3.select(".backgroundText")
+                .transition()
+                .duration(1000)
+                .attr("x", 100)
+                .attr("y", 100)
+                .attr("class", "backgroundText")
+                .text(cylinders)
+            d3.select(".backgroundTextsmall")
+                .transition()
+                .duration(1000)
+                .attr("x", 100)
+                .attr("y", 100)
+                .attr("class", "backgroundTextsmall")
+                .text("Cylinders")
+
+            svg.selectAll(".dot")
+                .transition()
                 .duration(500)
-                .style("opacity", 0);
-        });
-    
+                .style("opacity", function (d) {
+                    if (d.cylinders == cylinders) {
+                        return 1;
+                    }
+                    else {
+                        return 0.1;
+                    }
+                });
+        }
 
-    // draw legend
-    var legend = svg.selectAll(".legend")
-        .data([2000., 2312.5, 2625., 2937.5, 3250., 3562.5, 3875., 4187.5,
-            4500.])
-        .enter().append("g")
-        .attr("class", "legend")
-        .attr("transform", function (d, i) { 
-            return "translate(30," + i * 17 + ")"; });
+        var updateOrigin = function (origin) {
 
-    // // draw legend colored rectangles
-    legend.append("rect")
-        .attr("x", -130)
-        .attr("width", 28)
-        .attr("height", 40)
-        .style("opacity", 0.7)
-        .style("fill", colors);
+            d3.select(".backgroundText")
+                .transition()
+                .duration(1000)
+                .attr("x", 100)
+                .attr("y", 100)
+                .attr("class", "backgroundText")
+                .text(origin)
 
-    // // draw legend text
-    legend.append("text")
-        .attr("class", "weight_nr")
-        .attr("x", -97)
-        .attr("y", function(d, i) {
-            if (i == 0) {
-                return - 10
-            }  
-            else {
-                return 55
-            }
-        })
-        .attr("dy", ".35em")
-        .style("text-anchor", "end")
-        .attr("class", "legend_text")
-        .text(function (d, i) { 
-            if (i == 0 || i == 8)   {
-                return d;
-            } })
-    
-        
-    svg.append('path')
-        .style("fill", "darkgrey")
-        .attr('transform', function (d) { return "translate(-87, 270)"; })
-        .attr("d", d3.svg.symbol().size(150).type(d3.svg.symbolTypes[0])())
-    svg.append("text")
-        .attr("x", -115)
-        .attr("y", 275)
-        .style("text-anchor", "end")
-        .style("cursor", "pointer")
-        .attr("class", "legend_text")
-        .text("US")
-        .on("click", function (d) {
-            for (var i = 1; i < 10; i++) { window.clearInterval(i); }
-            showAllyears();
-            updateOrigin("US");
-        });
+            svg.selectAll(".dot")
+                .transition()
+                .duration(500)
+                .style("opacity", function (d) {
+                    if (d.origin == origin) {
+                        return 1;
+                    }
+                    else {
+                        return 0.1;
+                    }
+                });
 
-    svg.append('path')
-        .style("fill", "darkgrey")
-        .attr('transform', function (d) { return "translate(-87, 320)"; })
-        .attr("d", d3.svg.symbol().size(150).type(d3.svg.symbolTypes[1])())
-    svg.append("text")
-        .attr("x", -115)
-        .attr("y", 325)
-        .style("text-anchor", "end")
-        .style("cursor", "pointer")
-        .attr("class", "legend_text")
-        .text("Japan")
-        .on("click", function (d) {
-            for (var i = 1; i < 10; i++) { window.clearInterval(i); }
-            showAllyears();
-            updateOrigin("Japan");
-        });
-
-    svg.append('path')
-        .style("fill", "darkgrey")
-        .attr('transform', function (d) { return "translate(-87, 370)"; })
-        .attr("d", d3.svg.symbol().size(150).type(d3.svg.symbolTypes[3])())
-    svg.append("text")
-        .attr("x", -115)
-        .attr("y", 375)
-        .style("text-anchor", "end")
-        .style("cursor", "pointer")
-        .attr("class", "legend_text")
-        .text("Europe")
-        .on("click", function(d) {
-            for (var i = 1; i < 10; i++)
-            { window.clearInterval(i);}
-            showAllyears();
-            updateOrigin("Europe");
-        });
+        }
 
 
-    
-    symbol_sizes = [20, 49, 78, 107, 136];
-    syombol_cylinders = [3, 4, 5, 6, 8]
-    symbol_text = [""]
-    svg.selectAll(".symbols").data(symbol_sizes).enter()
-        .append('path')
-        .style("fill", "darkgrey")
-        .style("cursor", "pointer")
-        .attr('transform', function (d, i) { return "translate(-87,"+ (420 + d / 1.2 )+ ")"; })
-        .attr("d", function(d) {
-            return d3.svg.symbol().size(d).type(d3.svg.symbolTypes[0])()
-        })
-         .on("click", function (d) {
-            for (var i = 1; i < 10; i++) { window.clearInterval(i); }
-            showAllyears();
-            updateSymbols(d);
-        });
-
-     svg.selectAll(".symbols").data(syombol_cylinders).enter()
-        .append('text')
-        .attr("transform", function(d, i) {
-            return "translate(-120," + (25 * i + 442) + ")"
-        })
-        .on("click", function (d) {
-             for (var i = 1; i < 10; i++) { window.clearInterval(i); }
-             showAllyears();
-             updateSymbols(d);
-         })
-        .attr("class", "legend_text")
-        .text(function(d) {
-            return d
-        })
-
-
-    svg.append("text")
-        .attr("transform", "translate(-55, 515) rotate(-90)")
-        .attr("class", "legend_text")
-        .text("Cylinders");
-    svg.append("text")
-        .attr("transform", "translate(-55, 335) rotate(-90)")
-        .attr("class", "legend_text")
-        .text("Origin");
-    svg.append("text")
-        .attr("transform", "translate(-55, 115) rotate(-90)")
-        .attr("class", "legend_text")
-        .text("Weight");
-    
-        
-    var getVal = function (val) { return Math.ceil(val) }
-
-    var updateSymbols = function (symbol) {
-
-        var cylinders = null;
-        if (symbol == 20 || symbol == 3) { cylinders = 3}
-        else if (symbol == 49 || symbol == 4) { cylinders = 4}
-        else if (symbol == 78 || symbol == 5) { cylinders = 5 }
-        else if (symbol == 107 || symbol == 6)  { cylinders = 6 }
-        else if (symbol == 136 || symbol == 8)  { cylinders = 8 }
-        console.log(cylinders);
-        d3.select(".backgroundText")
-            .transition()
-            .duration(1000)
-            .attr("x", 100)
-            .attr("y", 100)
-            .attr("class", "backgroundText")
-            .text(cylinders)
-         d3.select(".backgroundTextsmall")
-            .transition()
-            .duration(1000)
-            .attr("x", 100)
-            .attr("y", 100)
-            .attr("class", "backgroundTextsmall")
-            .text("Cylinders")
-
-        svg.selectAll(".dot")
-            .transition()
-            .duration(500)
-            .style("opacity", function (d) {
-                if (d.cylinders == cylinders) {
-                    return 1;
-                }
-                else {
-                    return 0.1;
-                }
-            });
-    }
-
-    var updateOrigin = function (origin) {
-
-        d3.select(".backgroundText")
-            .transition()
-            .duration(1000)
-            .attr("x", 100)
-            .attr("y", 100)
-            .attr("class", "backgroundText")
-            .text(origin)
-
-        svg.selectAll(".dot")
-            .transition()
-            .duration(500)
-            .style("opacity", function (d) {
-                if (d.origin == origin) {
-                    return 1;
-                }
-                else {
-                    return 0.1;
-                }
-            });
-
-    }
-
-
-    // Initialize slider
-    var slider = d3.slider()
+        // Initialize slider
+        var slider = d3.slider()
             .min(1970)
             .max(1982)
             .ticks(13)
             .showRange(false).value(counter);
-    slider.callback(function (slider) {
-        var newYear = getVal(slider);
+        slider.callback(function (slider) {
+            var newYear = getVal(slider);
 
-        for (var i = 1; i < 10; i++)
-            window.clearInterval(i);
+            for (var i = 1; i < 10; i++)
+                window.clearInterval(i);
 
-        updateData(newYear);
-    })
-    // Render the slider in the div
-    d3.select('#slider').call(slider);
+            updateData(newYear);
+        })
+        // Render the slider in the div
+        d3.select('#slider').call(slider);
 
-});
+    });
 
-var updateData = function (year) {
+    var updateData = function (year) {
 
-    // Uncheck the checkbox
-    var checkBox = document.getElementById("check");
-    checkBox.checked = false;
+        // Uncheck the checkbox
+        var checkBox = document.getElementById("check");
+        checkBox.checked = false;
 
-    d3.select(".backgroundText")
-        .transition()
-        .duration(1000)
-        .attr("x", 100)
-        .attr("y", 100)
-        .attr("class", "backgroundText")
-        .text(year)
+        d3.select(".backgroundText")
+            .transition()
+            .duration(1000)
+            .attr("x", 100)
+            .attr("y", 100)
+            .attr("class", "backgroundText")
+            .text(year)
 
-    d3.select(".backgroundTextsmall")
-        .transition()
-        .duration(1000)
-        .text("Year")
+        d3.select(".backgroundTextsmall")
+            .transition()
+            .duration(1000)
+            .text("Year")
 
 
-    svg.selectAll(".dot")
-        .transition()
-        .duration(700)
-        .style("opacity", function (d) {
-            if (d.year == year - 1900) {
-                return 1;
-            }
-            else {
-                return 0.1;
-            }
-        });
-}
+        svg.selectAll(".dot")
+            .transition()
+            .duration(700)
+            .style("opacity", function (d) {
+                if (d.year == year - 1900) {
+                    return 1;
+                }
+                else {
+                    return 0.1;
+                }
+            });
+    }
 
-var play = function() {
+    var play = function () {
 
-    setInterval(function () {
-        updateData(counter);
-        counter += 1;
-        if (counter % 1983 == 0) { counter = 1970 }
-    },
-        800);
-}
+        setInterval(function () {
+            updateData(counter);
+            counter += 1;
+            if (counter % 1983 == 0) { counter = 1970 }
+        },
+            800);
+    }
 
-function getRandomInt(min, max) {
+    function getRandomInt(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+    }
 
 
 </script>
